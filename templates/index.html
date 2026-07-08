@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Placement Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="page">
+
+  <!-- LEFT PANEL -->
+  <aside class="intro">
+    <div class="intro-inner">
+      <span class="eyebrow">Predictive Analytics · Campus Placements</span>
+      <h1>Will you get<br>placed this year?</h1>
+      <p class="lede">
+        Enter your academic and extracurricular record. A Random Forest model,
+        trained on historical placement patterns, estimates your placement
+        outcome and how confident it is in that call.
+      </p>
+
+      <ul class="signal-list">
+        <li><span class="dot dot-a"></span> Academics — CGPA, 10th &amp; 12th %</li>
+        <li><span class="dot dot-b"></span> Consistency — attendance, backlogs</li>
+        <li><span class="dot dot-c"></span> Experience — internships, projects</li>
+        <li><span class="dot dot-d"></span> Aptitude — coding score, communication</li>
+      </ul>
+
+      <div class="disclaimer">
+        Trained on synthetic/sample data for demonstration purposes —
+        predictions are indicative, not a guarantee.
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT PANEL -->
+  <main class="panel">
+
+    {% if errors %}
+    <div class="alert">
+      <strong>Please fix the following:</strong>
+      <ul>
+        {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if result %}
+    <section class="result-card {{ 'is-placed' if result.placed else 'is-not-placed' }}">
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 200 120" class="gauge">
+          <path d="M10,110 A90,90 0 0,1 190,110" class="gauge-track"/>
+          <path d="M10,110 A90,90 0 0,1 190,110"
+                class="gauge-fill"
+                style="stroke-dasharray: {{ (result.confidence/100*283)|round(1) }} 283"/>
+          <line x1="100" y1="110" x2="100" y2="30"
+                class="gauge-needle"
+                style="transform: rotate({{ (result.confidence/100*180 - 90)|round(1) }}deg)"/>
+          <circle cx="100" cy="110" r="6" class="gauge-hub"/>
+        </svg>
+        <div class="gauge-value">{{ result.confidence }}%</div>
+        <div class="gauge-label">model confidence</div>
+      </div>
+      <div class="result-text">
+        <span class="result-tag">Prediction</span>
+        <h2>{{ result.label }}</h2>
+        <p>
+          {% if result.placed %}
+            Your combined academic and skill profile aligns closely with
+            historically placed students.
+          {% else %}
+            Your current profile is closer to historically unplaced students —
+            see the panel for the factors that carry the most weight.
+          {% endif %}
+        </p>
+      </div>
+    </section>
+    {% endif %}
+
+    <form method="POST" action="/predict" class="form-card" novalidate>
+      <h3 class="form-title">Student Details</h3>
+      <div class="grid">
+        {% for f in fields %}
+        <div class="field">
+          <label for="{{ f.name }}">{{ f.label }}</label>
+          <input
+            type="number"
+            id="{{ f.name }}"
+            name="{{ f.name }}"
+            min="{{ f.min }}"
+            max="{{ f.max }}"
+            step="{{ f.step }}"
+            inputmode="decimal"
+            placeholder="{{ f.min }}–{{ f.max }}"
+            value="{{ submitted[f.name] if submitted else '' }}"
+            required
+          >
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="submit-btn">Predict Placement</button>
+    </form>
+
+  </main>
+</div>
+
+</body>
+</html>
