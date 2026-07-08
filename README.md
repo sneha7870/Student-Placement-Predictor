@@ -77,10 +77,10 @@ student-placement-predictor/
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/<your-username>/student-placement-predictor.git
+git clone https://github.com/<sneha7870>/student-placement-predictor.git
 cd student-placement-predictor
 
-# 2. Create a virtual environment (optional but recommended)
+# 2. Create a virtual environment
 python -m venv venv
 source venv/bin/activate      # on Windows: venv\Scripts\activate
 
